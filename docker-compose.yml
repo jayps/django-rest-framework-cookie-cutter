@@ -1,0 +1,35 @@
+version: '3'
+
+services:
+  db:
+    image: postgres
+    container_name: cookie-cutter-db
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_PASSWORD=Pass123#
+    ports:
+      - 5432:5432
+  web:
+    build: .
+    container_name: cookie-cutter-api
+    volumes:
+      - .:/code
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db
+    environment:
+      - DJANGO_DEBUG=TRUE
+      - ALLOWED_HOSTS=localhost
+      - POSTGRES_DB=postgres
+      - POSTGRES_USER=postgres
+      - POSTGRES_HOST=cookie-cutter-db
+      - POSTGRES_PORT=5432
+      - POSTGRES_PASSWORD=Pass123#
+      - WORKER_COUNT=3
+      - WORKER_TIMEOUT=300
+      - DJANGO_SETTINGS_MODULE=cookiecutter.settings
+
+volumes:
+  db-data:
