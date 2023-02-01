@@ -2,6 +2,7 @@ from rest_framework import serializers
 from rest_framework.serializers import ModelSerializer, Serializer
 
 from cookiecutter.books.models import Book, Author
+from cookiecutter.users.serializers import BasicUserSerializer
 
 
 class AuthorSerializer(ModelSerializer):
@@ -21,12 +22,17 @@ class BookSerializer(ModelSerializer):
 
 class BookDetailSerializer(ModelSerializer):
     author = AuthorSerializer(many=False)
+    on_loan_to = BasicUserSerializer(many=False)
 
     class Meta:
         model = Book
         fields = (
+            "id",
             "title",
-            "author"
+            "author",
+            "is_checked_out",
+            "on_loan_to",
+            "due_date",
         )
 
 

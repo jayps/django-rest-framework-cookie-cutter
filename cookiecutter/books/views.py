@@ -12,13 +12,13 @@ from cookiecutter.users.models import AppUser
 
 
 class AuthorsViewSet(viewsets.ModelViewSet):
-    queryset = Author.objects.all()
+    queryset = Author.objects.order_by('name')
     serializer_class = AuthorSerializer
     search_fields = ('name',)
 
 
 class BooksViewSet(viewsets.ModelViewSet):
-    queryset = Book.objects.all()
+    queryset = Book.objects.order_by('title')
     filterset_fields = ('author',)
     search_fields = ('title',)
 
@@ -36,6 +36,7 @@ class BooksViewSet(viewsets.ModelViewSet):
         user = get_object_or_404(AppUser, id=serializer.validated_data.get('user_id'))
         books = []
         for book_id in serializer.validated_data.get('book_ids'):
+            print("Looking for book id", book_id)
             book = get_object_or_404(Book, id=book_id)
             books.append(book)
 

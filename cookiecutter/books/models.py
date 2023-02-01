@@ -14,6 +14,9 @@ class Author(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     name = models.CharField(max_length=255, null=False, blank=False)
 
+    def __str__(self):
+        return self.name
+
 
 class Book(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
@@ -22,3 +25,6 @@ class Book(models.Model):
     is_checked_out = models.BooleanField(default=False, blank=True, null=False)
     on_loan_to = models.ForeignKey(AppUser, on_delete=models.SET_NULL, null=True, blank=True, related_name='loaned_books')
     due_date = models.DateTimeField(null=True, blank=True)
+
+    def __str__(self):
+        return self.title

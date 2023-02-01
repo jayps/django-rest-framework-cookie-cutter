@@ -12,7 +12,7 @@ class Library:
         # Some cool logic here.
 
         # Users can't check out more than three books at a time.
-        if len(user.loaned_books) >= 3 or len(user.loaned_books) + len(books) > 3:
+        if user.loaned_books.count() >= 3 or user.loaned_books.count() + len(books) > 3:
             raise TooManyBooksException
 
         # Check that all the books are avaialble
@@ -25,3 +25,4 @@ class Library:
             book.is_checked_out = True
             book.on_loan_to = user
             book.due_date = datetime.now() + timedelta(weeks=2)
+            book.save()

@@ -42,6 +42,16 @@ class UserGroupSerializer(ModelSerializer):
         fields = "__all__"
 
 
+class BasicUserSerializer(ModelSerializer):
+    class Meta:
+        model = AppUser
+        fields = (
+            "id",
+            "email",
+            "first_name",
+            "last_name",
+        )
+
 class UserSerializer(ModelSerializer):
     groups = UserGroupSerializer(many=True, read_only=True)
 
