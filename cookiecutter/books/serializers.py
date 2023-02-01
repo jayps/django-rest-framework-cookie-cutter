@@ -36,8 +36,14 @@ class BookDetailSerializer(ModelSerializer):
         )
 
 
-class CheckoutRequestSerializezr(Serializer):
+class CheckoutRequestSerializer(Serializer):
     user_id = serializers.UUIDField()
+    book_ids = serializers.ListField(
+        child=serializers.UUIDField()
+    )
+
+
+class ReturnBooksRequestSerializer(Serializer):
     book_ids = serializers.ListField(
         child=serializers.UUIDField()
     )

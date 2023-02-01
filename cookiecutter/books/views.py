@@ -6,8 +6,8 @@ from rest_framework.response import Response
 from cookiecutter.books.exceptions import TooManyBooksException, IsCheckedOutException
 from cookiecutter.books.logic import Library
 from cookiecutter.books.models import Author, Book
-from cookiecutter.books.serializers import AuthorSerializer, BookSerializer, CheckoutRequestSerializezr, \
-    BookDetailSerializer
+from cookiecutter.books.serializers import AuthorSerializer, BookSerializer, CheckoutRequestSerializer, \
+    BookDetailSerializer, ReturnBooksRequestSerializer
 from cookiecutter.users.models import AppUser
 
 
@@ -30,13 +30,12 @@ class BooksViewSet(viewsets.ModelViewSet):
 
     @action(detail=False, methods=['POST'])
     def checkout_books(self, request):
-        serializer = CheckoutRequestSerializezr(data=request.data)
+        serializer = CheckoutRequestSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
 
         user = get_object_or_404(AppUser, id=serializer.validated_data.get('user_id'))
         books = []
         for book_id in serializer.validated_data.get('book_ids'):
-            print("Looking for book id", book_id)
             book = get_object_or_404(Book, id=book_id)
             books.append(book)
 
@@ -55,3 +54,16 @@ class BooksViewSet(viewsets.ModelViewSet):
 
         return Response(data='Checkout successful.', status=status.HTTP_200_OK)
 
+    @action(detail=False, methods=['POST'])
+    def return_books(self, request):
+        serializer = ReturnBooksRequestSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        books = []
+        for book_id in serializer.validated_data.get('book_ids'):
+            book = get_object_or_404(Book, id=book_id)
+            books.append(book)
+
+        Library.return_books(books=books)
+
+        return Response(data='Return successful.', status=status.HTTP_200_OK)

@@ -26,3 +26,10 @@ class Library:
             book.on_loan_to = user
             book.due_date = datetime.now() + timedelta(weeks=2)
             book.save()
+
+    @staticmethod
+    def return_books(books: List[Book]):
+        for book in books:
+            book.is_checked_out = False
+            book.on_loan_to = None
+            book.save()
