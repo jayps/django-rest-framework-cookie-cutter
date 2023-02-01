@@ -43,7 +43,8 @@ INSTALLED_APPS = [
     'drf_yasg',
     'corsheaders',
     'django_filters',
-    'cookiecutter.users'
+    'cookiecutter.users',
+    'cookiecutter.books',
 ]
 
 MIDDLEWARE = [
