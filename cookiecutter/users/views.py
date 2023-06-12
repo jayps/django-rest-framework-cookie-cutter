@@ -79,6 +79,11 @@ class MyProfileView(APIView):
         serializer = UpdateMyProfileRequestSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
 
+        if serializer.validated_data.get("email") and \
+                serializer.validated_data.get("email") != self.request.user.email and \
+                AppUser.objects.filter(email=serializer.validated_data.get("email")).count() > 0:
+            return Response(data="The requested email address is already in use.", status=status.HTTP_412_PRECONDITION_FAILED)
+
         AppUser.objects.filter(id=self.request.user.id).update(**serializer.validated_data)
 
         return Response(data="Profile updated.", status=status.HTTP_200_OK)
