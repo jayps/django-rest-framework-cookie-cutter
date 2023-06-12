@@ -15,7 +15,7 @@ from cookiecutter.users.serializers import (
     RegisterRequestSerializer,
     UserSerializer,
     RegisterResponseSerializer,
-    UserGroupSerializer,
+    UserGroupSerializer, UpdateMyProfileRequestSerializer,
 )
 
 
@@ -66,6 +66,20 @@ class UsersViewSet(ModelViewSet):
     ordering_fields = ("first_name", "last_name", "email", "date_joined")
     filterset_fields = ("is_active", "is_superuser", "is_staff")
 
+
+class MyProfileView(APIView):
+    def get(self, request):
+        user = AppUser.objects.get(id=self.request.user.id)
+        serializer = UserSerializer(user, many=False)
+        return Response(data=serializer.data)
+
+    def patch(self, request):
+        serializer = UpdateMyProfileRequestSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        AppUser.objects.filter(id=self.request.user.id).update(**serializer.validated_data)
+
+        return Response(status=status.HTTP_200_OK)
 
 class GroupsViewSet(ModelViewSet):
     queryset = Group.objects.all()

@@ -36,6 +36,12 @@ class RegisterResponseSerializer(Serializer):
     last_name = serializers.CharField()
 
 
+class UpdateMyProfileRequestSerializer(Serializer):
+    email = serializers.EmailField(required=False)
+    first_name = serializers.CharField(required=False)
+    last_name = serializers.CharField(required=False)
+
+
 class UserGroupSerializer(ModelSerializer):
     class Meta:
         model = Group
