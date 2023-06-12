@@ -41,6 +41,11 @@ class UpdateMyProfileRequestSerializer(Serializer):
     first_name = serializers.CharField(required=False)
     last_name = serializers.CharField(required=False)
 
+class MyProfileRequestSerializer(Serializer):
+    email = serializers.EmailField()
+    first_name = serializers.CharField()
+    last_name = serializers.CharField()
+
 
 class UserGroupSerializer(ModelSerializer):
     class Meta:
