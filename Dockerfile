@@ -1,4 +1,4 @@
-FROM python:3.10.4-buster
+FROM python:3.11.4-buster
 ENV PYTHONUNBUFFERED=1
 WORKDIR /code
 COPY requirements.txt /code/

@@ -44,7 +44,6 @@ INSTALLED_APPS = [
     'corsheaders',
     'django_filters',
     'cookiecutter.users',
-    'cookiecutter.books',
 ]
 
 MIDDLEWARE = [

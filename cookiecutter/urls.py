@@ -38,5 +38,4 @@ urlpatterns = [
     path("api/auth/register/", RegisterView.as_view()),
     # Apps
     path("api/users/", include("cookiecutter.users.urls")),
-    path("api/books/", include("cookiecutter.books.urls")),
 ]

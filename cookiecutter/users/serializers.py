@@ -1,6 +1,6 @@
 from abc import ABC
 
-from django.contrib.auth.models import Group
+from django.contrib.auth.models import Group, Permission
 from rest_framework import serializers
 from rest_framework.serializers import Serializer, ModelSerializer
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
@@ -18,6 +18,7 @@ class AppUserTokenObtainPairSerializer(TokenObtainPairSerializer):
         token["last_name"] = user.last_name
         token["is_staff"] = user.is_staff
         token["is_superuser"] = user.is_superuser
+        token["groups"] = UserGroupSerializer(user.groups.all(), many=True).data
 
         return token
 
@@ -47,7 +48,15 @@ class MyProfileRequestSerializer(Serializer):
     last_name = serializers.CharField()
 
 
+class PermissionSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Permission
+        fields = "__all__"
+
+
 class UserGroupSerializer(ModelSerializer):
+    permissions = PermissionSerializer(many=True)
+
     class Meta:
         model = Group
         fields = "__all__"
