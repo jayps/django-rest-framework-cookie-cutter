@@ -42,6 +42,7 @@ class UpdateMyProfileRequestSerializer(Serializer):
     first_name = serializers.CharField(required=False)
     last_name = serializers.CharField(required=False)
 
+
 class MyProfileRequestSerializer(Serializer):
     email = serializers.EmailField()
     first_name = serializers.CharField()
@@ -71,6 +72,7 @@ class BasicUserSerializer(ModelSerializer):
             "first_name",
             "last_name",
         )
+
 
 class UserSerializer(ModelSerializer):
     groups = UserGroupSerializer(many=True, read_only=True)
