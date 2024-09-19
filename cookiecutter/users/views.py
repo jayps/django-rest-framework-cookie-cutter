@@ -1,4 +1,4 @@
-from django.contrib.auth.models import Group
+from django.contrib.auth.models import Group, Permission
 from django.db import IntegrityError
 from drf_yasg import openapi
 from drf_yasg.utils import swagger_auto_schema
@@ -6,7 +6,7 @@ from rest_framework import status
 from rest_framework.permissions import IsAdminUser
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from rest_framework.viewsets import ModelViewSet
+from rest_framework.viewsets import ModelViewSet, ReadOnlyModelViewSet
 from rest_framework_simplejwt.views import TokenObtainPairView
 
 from cookiecutter.users.models import AppUser
@@ -15,7 +15,7 @@ from cookiecutter.users.serializers import (
     RegisterRequestSerializer,
     UserSerializer,
     RegisterResponseSerializer,
-    UserGroupSerializer, UpdateMyProfileRequestSerializer, MyProfileRequestSerializer,
+    UserGroupSerializer, UpdateMyProfileRequestSerializer, MyProfileRequestSerializer, PermissionSerializer,
 )
 
 
@@ -67,6 +67,16 @@ class UsersViewSet(ModelViewSet):
     filterset_fields = ("is_active", "is_superuser", "is_staff")
 
 
+class AllUsersViewSet(ReadOnlyModelViewSet):
+    queryset = AppUser.objects.all()
+    serializer_class = UserSerializer
+    permission_classes = (IsAdminUser,)
+    pagination_class = None
+    search_fields = ("first_name", "last_name", "email")
+    ordering_fields = ("first_name", "last_name", "email", "date_joined")
+    filterset_fields = ("is_active", "is_superuser", "is_staff")
+
+
 class MyProfileView(APIView):
     @swagger_auto_schema(operation_description="Get the current user profile.", responses={200: MyProfileRequestSerializer(many=False)})
     def get(self, request):
@@ -88,9 +98,17 @@ class MyProfileView(APIView):
 
         return Response(data="Profile updated.", status=status.HTTP_200_OK)
 
+
 class GroupsViewSet(ModelViewSet):
     queryset = Group.objects.all()
     serializer_class = UserGroupSerializer
     permission_classes = (IsAdminUser,)
     search_fields = ("name",)
     ordering_fields = ("name",)
+
+
+class PermissionsViewSet(ModelViewSet):
+    queryset = Permission.objects.all()
+    serializer_class = PermissionSerializer
+    permission_classes = (IsAdminUser,)
+    pagination_class = None
