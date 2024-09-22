@@ -118,21 +118,6 @@ class GroupsViewSet(ModelViewSet):
         else:
             return CreateUserGroupSerializer
 
-    def perform_create(self, serializer):
-        # Create group with permissions
-        with transaction.atomic():
-            created_group = Group.objects.create(
-                name=serializer.validated_data.get('name'),
-            )
-
-            # Set group permissions
-            created_group.permissions.set(serializer.validated_data.get('permissions'))
-
-            # Add users to groups
-            print(serializer.validated_data.get('users'))
-            for user in serializer.validated_data.get('users'):
-                user.groups.add(created_group)
-
 
 class PermissionsViewSet(ModelViewSet):
     queryset = Permission.objects.all()

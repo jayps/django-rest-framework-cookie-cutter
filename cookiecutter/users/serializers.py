@@ -57,10 +57,15 @@ class UserGroupSerializer(ModelSerializer):
         fields = "__all__"
 
 
-class CreateUserGroupSerializer(Serializer):
-    name = serializers.CharField(required=True)
-    permissions = serializers.PrimaryKeyRelatedField(queryset=Permission.objects.all(), many=True, read_only=False)
-    users = serializers.PrimaryKeyRelatedField(queryset=AppUser.objects.all(), many=True, read_only=False)
+class CreateUserGroupSerializer(ModelSerializer):
+    class Meta:
+        model = Group
+        fields = (
+            "id",
+            "name",
+            "permissions",
+            "user_set"
+        )
 
 
 class BasicUserSerializer(ModelSerializer):
