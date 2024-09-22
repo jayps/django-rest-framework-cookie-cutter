@@ -1,6 +1,6 @@
 from abc import ABC
 
-from django.contrib.auth.models import Group, Permission
+from django.contrib.auth.models import Group, Permission, User
 from rest_framework import serializers
 from rest_framework.serializers import Serializer, ModelSerializer
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
@@ -43,12 +43,6 @@ class UpdateMyProfileRequestSerializer(Serializer):
     last_name = serializers.CharField(required=False)
 
 
-class MyProfileRequestSerializer(Serializer):
-    email = serializers.EmailField()
-    first_name = serializers.CharField()
-    last_name = serializers.CharField()
-
-
 class PermissionSerializer(serializers.ModelSerializer):
     class Meta:
         model = Permission
@@ -61,6 +55,12 @@ class UserGroupSerializer(ModelSerializer):
     class Meta:
         model = Group
         fields = "__all__"
+
+
+class CreateUserGroupSerializer(Serializer):
+    name = serializers.CharField(required=True)
+    permissions = serializers.PrimaryKeyRelatedField(queryset=Permission.objects.all(), many=True, read_only=False)
+    users = serializers.PrimaryKeyRelatedField(queryset=AppUser.objects.all(), many=True, read_only=False)
 
 
 class BasicUserSerializer(ModelSerializer):
@@ -90,4 +90,18 @@ class UserSerializer(ModelSerializer):
             "user_permissions",
             "date_joined",
             "is_active",
+        )
+
+
+class UserGroupDetailSerializer(ModelSerializer):
+    permissions = PermissionSerializer(many=True)
+    user_set = BasicUserSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = Group
+        fields = (
+            "id",
+            "name",
+            "permissions",
+            "user_set"
         )

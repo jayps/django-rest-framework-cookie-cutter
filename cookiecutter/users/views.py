@@ -1,5 +1,5 @@
 from django.contrib.auth.models import Group, Permission
-from django.db import IntegrityError
+from django.db import IntegrityError, transaction
 from drf_yasg import openapi
 from drf_yasg.utils import swagger_auto_schema
 from rest_framework import status
@@ -15,7 +15,8 @@ from cookiecutter.users.serializers import (
     RegisterRequestSerializer,
     UserSerializer,
     RegisterResponseSerializer,
-    UserGroupSerializer, UpdateMyProfileRequestSerializer, MyProfileRequestSerializer, PermissionSerializer,
+    UserGroupSerializer, UpdateMyProfileRequestSerializer, PermissionSerializer, CreateUserGroupSerializer,
+    UserGroupDetailSerializer,
 )
 
 
@@ -78,13 +79,15 @@ class AllUsersViewSet(ReadOnlyModelViewSet):
 
 
 class MyProfileView(APIView):
-    @swagger_auto_schema(operation_description="Get the current user profile.", responses={200: MyProfileRequestSerializer(many=False)})
+    @swagger_auto_schema(operation_description="Get the current user profile.",
+                         responses={200: UserSerializer(many=False)})
     def get(self, request):
         user = AppUser.objects.get(id=self.request.user.id)
-        serializer = MyProfileRequestSerializer(user, many=False)
+        serializer = UserSerializer(user, many=False)
         return Response(data=serializer.data)
 
-    @swagger_auto_schema(operation_description="Update the current user profile.", request_body=UpdateMyProfileRequestSerializer, responses={200: "Profile updated."})
+    @swagger_auto_schema(operation_description="Update the current user profile.",
+                         request_body=UpdateMyProfileRequestSerializer, responses={200: "Profile updated."})
     def patch(self, request):
         serializer = UpdateMyProfileRequestSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
@@ -92,7 +95,8 @@ class MyProfileView(APIView):
         if serializer.validated_data.get("email") and \
                 serializer.validated_data.get("email") != self.request.user.email and \
                 AppUser.objects.filter(email=serializer.validated_data.get("email")).count() > 0:
-            return Response(data="The requested email address is already in use.", status=status.HTTP_412_PRECONDITION_FAILED)
+            return Response(data="The requested email address is already in use.",
+                            status=status.HTTP_412_PRECONDITION_FAILED)
 
         AppUser.objects.filter(id=self.request.user.id).update(**serializer.validated_data)
 
@@ -105,6 +109,29 @@ class GroupsViewSet(ModelViewSet):
     permission_classes = (IsAdminUser,)
     search_fields = ("name",)
     ordering_fields = ("name",)
+
+    def get_serializer_class(self):
+        if self.action == 'list':
+            return UserGroupSerializer
+        elif self.action == 'retrieve':
+            return UserGroupDetailSerializer
+        else:
+            return CreateUserGroupSerializer
+
+    def perform_create(self, serializer):
+        # Create group with permissions
+        with transaction.atomic():
+            created_group = Group.objects.create(
+                name=serializer.validated_data.get('name'),
+            )
+
+            # Set group permissions
+            created_group.permissions.set(serializer.validated_data.get('permissions'))
+
+            # Add users to groups
+            print(serializer.validated_data.get('users'))
+            for user in serializer.validated_data.get('users'):
+                user.groups.add(created_group)
 
 
 class PermissionsViewSet(ModelViewSet):
