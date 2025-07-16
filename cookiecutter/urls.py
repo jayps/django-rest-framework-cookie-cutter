@@ -8,7 +8,7 @@ from rest_framework_simplejwt.views import (
     TokenRefreshView,
 )
 
-from cookiecutter.users.views import AppUserTokenObtainPairView, RegisterView
+from cookiecutter.users.views import AppUserTokenObtainPairView, RegisterView, LoginView, LogoutView, RefreshView
 
 schema_view = get_schema_view(
    openapi.Info(
@@ -29,12 +29,14 @@ urlpatterns = [
     re_path(r'^swagger/$', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),
     re_path(r'^redoc/$', schema_view.with_ui('redoc', cache_timeout=0), name='schema-redoc'),
     # Auth
-    path(
-        "api/auth/login/",
-        AppUserTokenObtainPairView.as_view(),
-        name="token_obtain_pair",
-    ),
-    path("api/auth/refresh/", TokenRefreshView.as_view(), name="token_refresh"),
+    # path(
+    #     "api/auth/login/",
+    #     AppUserTokenObtainPairView.as_view(),
+    #     name="token_obtain_pair",
+    # ),
+    path('api/auth/login/', LoginView.as_view()),
+    path('api/auth/logout/', LogoutView.as_view()),
+    path("api/auth/refresh/", RefreshView.as_view()),
     path("api/auth/register/", RegisterView.as_view()),
     # Apps
     path("api/users/", include("cookiecutter.users.urls")),
